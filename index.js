@@ -38,9 +38,15 @@ async function startBot() {
     if (!phoneNumber) {
       phoneNumber = await ask('Masukkan nomor WhatsApp BOT (contoh: 628123456789): ');
     }
-    const code = await sock.requestPairingCode(phoneNumber.trim());
-    console.log(`\nKode pairing kamu: ${code}`);
-    console.log('Buka WhatsApp > Perangkat Tertaut > Tautkan dengan nomor telepon\n');
+    setTimeout(async () => {
+      try {
+        const code = await sock.requestPairingCode(phoneNumber.trim());
+        console.log(`\nKode pairing kamu: ${code}`);
+        console.log('Buka WhatsApp > Perangkat Tertaut > Tautkan dengan nomor telepon\n');
+      } catch (err) {
+        console.error('Gagal meminta kode pairing:', err);
+      }
+    }, 3000);
   }
 
   sock.ev.on('connection.update', async (update) => {
