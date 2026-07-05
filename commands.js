@@ -49,11 +49,23 @@ async function handleGet(sock, jid, text) {
       validateStatus: () => true, // status non-2xx tetap ditampilkan, bukan dianggap error
     });
 
-    let body = typeof res.data === 'string' ? res.data : JSON.stringify(res.data, null, 2);
-    let output = `*Status:* ${res.status}\n*Content-Type:* ${res.headers['content-type'] || '-'}\n\n${body}`;
+    let body = res.data;
+    let isJson = false;
+    try {
+      // Coba ubah response ke JSON, lalu buat pretty print
+      const parsed = JSON.parse(body);
+      body = JSON.stringify(parsed, null, 2);
+      isJson = true;
+    } catch (e) {
+      // Jika gagal, berarti bukan JSON, tampilkan apa adanya
+    }
+
+    // Gunakan blok kode WA (```) jika itu JSON supaya tampilannya rapi
+    let formattedBody = isJson ? `\`\`\`json\n${body}\n\`\`\`` : body;
+    let output = `*Status:* ${res.status}\n*Content-Type:* ${res.headers['content-type'] || '-'}\n\n${formattedBody}`;
 
     if (output.length > GET_MAX_CHARS) {
-      output = `${output.slice(0, GET_MAX_CHARS)}\n\n...(dipotong, total ${body.length} karakter)`;
+      output = `${output.slice(0, GET_MAX_CHARS)}\n\n...(dipotong, respons terlalu panjang)`;
     }
 
     await sock.sendMessage(jid, { text: output });
