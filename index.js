@@ -80,9 +80,13 @@ async function startBot() {
       if (msg.key.remoteJid?.endsWith('@g.us')) return; // abaikan grup — bot khusus chat pribadi
 
       // === FILTER UTAMA: hanya OWNER yang bisa memerintah bot ini ===
-      if (msg.key.remoteJid !== OWNER_JID) return;
+      // Pesan valid jika dikirim dari HP Anda sendiri (fromMe) atau ada di ruang obrolan Anda
+      const isOwner = msg.key.fromMe || (msg.key.remoteJid && msg.key.remoteJid.includes(config.ownerNumber));
+      if (!isOwner) return;
 
       const body = msg.message.conversation || msg.message.extendedTextMessage?.text || '';
+      console.log(`[DEBUG] Pesan owner terdeteksi: ${body}`);
+
       if (!body.startsWith(config.prefix)) return;
 
       const [rawCmd, ...args] = body.slice(config.prefix.length).trim().split(/\s+/);
