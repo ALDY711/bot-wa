@@ -77,11 +77,14 @@ async function startBot() {
     try {
       const msg = messages[0];
       if (!msg?.message) return;
-      if (msg.key.remoteJid?.endsWith('@g.us')) return; // abaikan grup — bot khusus chat pribadi
+      // if (msg.key.remoteJid?.endsWith('@g.us')) return; // Baris ini dimatikan agar bot bisa di grup
 
       // === FILTER UTAMA: hanya OWNER yang bisa memerintah bot ini ===
-      // Pesan valid jika dikirim dari HP Anda sendiri (fromMe) atau ada di ruang obrolan Anda
-      const isOwner = msg.key.fromMe || (msg.key.remoteJid && msg.key.remoteJid.includes(config.ownerNumber));
+      // Pesan valid jika dikirim dari HP Anda sendiri (fromMe) atau nomor owner
+      const sender = msg.key.participant || msg.key.remoteJid;
+      const isOwner = msg.key.fromMe || (sender && sender.includes(config.ownerNumber));
+      
+      // Jika ingin SEMUA ORANG bisa pakai bot, beri tanda // di awal baris berikut:
       if (!isOwner) return;
 
       const body = msg.message.conversation || msg.message.extendedTextMessage?.text || '';
