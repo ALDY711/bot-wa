@@ -34,7 +34,10 @@ async function startBot() {
 
   // --- Login: QR code (default) atau pairing code (jalankan `npm run pairing`) ---
   if (usePairingCode && !sock.authState.creds.registered) {
-    const phoneNumber = await ask('Masukkan nomor WhatsApp BOT (contoh: 628123456789): ');
+    let phoneNumber = process.env.PAIRING_NUMBER;
+    if (!phoneNumber) {
+      phoneNumber = await ask('Masukkan nomor WhatsApp BOT (contoh: 628123456789): ');
+    }
     const code = await sock.requestPairingCode(phoneNumber.trim());
     console.log(`\nKode pairing kamu: ${code}`);
     console.log('Buka WhatsApp > Perangkat Tertaut > Tautkan dengan nomor telepon\n');
